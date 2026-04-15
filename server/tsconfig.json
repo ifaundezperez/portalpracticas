@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "rootDir": "./src",            // Esto sacará el código de /src
+    "outDir": "./dist",           // Y lo pondrá ordenado en /dist
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "verbatimModuleSyntax": false  // ¡Aquí estaba el error! Lo desactivamos.
+  },
+  "include": ["src/*/"],
+  "exclude": ["node_modules"]
+}
