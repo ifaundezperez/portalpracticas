@@ -1,0 +1,65 @@
+.login-split-container {
+  display: flex;
+  height: 100vh; /* Ocupa toda la altura de la pantalla */
+  width: 100%;
+}
+
+.login-side {
+  flex: 1; /* Mitad de la pantalla cada uno */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 50px;
+  transition: all 0.3s ease;
+}
+
+/* Estilo Lado Estudiante (Izquierda) */
+.student-side {
+  background-color: #f0f7ff; /* Azul claro UNAB */
+  color: #1a365d;
+}
+
+/* Estilo Lado Empresa (Derecha) */
+.company-side {
+  background-color: #1a202c; /* Gris oscuro corporativo */
+  color: white;
+}
+
+.login-box {
+  width: 100%;
+  max-width: 350px;
+  text-align: center;
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  cursor: pointer;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+}
+
+.btn-student { background-color: #2b6cb0; color: white; }
+.btn-company { background-color: #4a5568; color: white; }
+
+.register-text {
+  margin-top: 20px;
+  font-size: 0.9rem;
+}
+
+.register-text a {
+  color: inherit;
+  font-weight: bold;
+  text-decoration: underline;
+}
