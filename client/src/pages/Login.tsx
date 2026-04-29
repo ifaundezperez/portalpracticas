@@ -1,4 +1,5 @@
-import './Login.css';
+import { Link } from 'react-router-dom'; // 1. IMPORTAR EL COMPONENTE DE RUTAS
+import '../styles/Login.css';
 
 function Login() {
   return (
@@ -8,14 +9,15 @@ function Login() {
       <div className="login-side student-side">
         <div className="login-box">
           <h2>Acceso Estudiantes</h2>
-          <p>Usa tu correo institucional</p>
-          <input type="email" placeholder="ejemplo@uandresbello.edu" />
+          <p>Usa tu correo electrónico</p>
+          <input type="email" placeholder="ejemplo@correo.cl" />
           <input type="password" placeholder="Contraseña" />
           <button className="btn-student">Entrar como Estudiante</button>
           
           <div className="register-text">
             ¿No tienes cuenta? <br />
-            <a href="#">Regístrate como Estudiante</a>
+            {/* 2. CAMBIAR <a> POR <Link> Y APUNTAR A LA RUTA CORRECTA */}
+            <Link to="/registro-estudiante">Regístrate como Estudiante</Link>
           </div>
         </div>
       </div>
@@ -31,7 +33,8 @@ function Login() {
           
           <div className="register-text">
             ¿Buscas talento? <br />
-            <a href="#">Regístrate como Empresa</a>
+            {/* 3. LO MISMO PARA EL LADO DE EMPRESA */}
+            <Link to="/registro-empresa">Regístrate como Empresa</Link>
           </div>
         </div>
       </div>

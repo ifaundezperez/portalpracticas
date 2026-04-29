@@ -1,0 +1,79 @@
+.register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f7fafc;
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.register-box {
+  background: white;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  width: 100%;
+  max-width: 400px; /* Mantener este ancho para que no se estire */
+  text-align: center;
+}
+
+.register-box h2 {
+  color: #1a365d;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.register-box p {
+  color: #4a5568;
+  font-size: 0.95rem;
+  margin-bottom: 20px;
+}
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.register-form input {
+  padding: 12px 15px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.register-form input:focus {
+  border-color: #3182ce;
+}
+
+/* ⚠️ REVISA ESTA CLASE: Es la que pone el botón azul */
+.btn-register {
+  background-color: #3182ce;
+  color: white; /* Texto blanco */
+  padding: 14px;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 10px;
+}
+
+.btn-register:hover {
+  background-color: #2b6cb0;
+}
+
+.back-link {
+  margin-top: 25px;
+  font-size: 0.9rem;
+}
+
+.back-link a {
+  color: #3182ce;
+  text-decoration: none;
+  font-weight: 500;
+}
