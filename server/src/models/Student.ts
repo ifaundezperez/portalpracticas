@@ -1,7 +1,7 @@
 import { Schema, model } from 'mongoose';
 
 const EstudianteSchema = new Schema({
-    // DATOS DE REGISTRO (Campos obligatorios para login y contacto)
+    // DATOS DE REGISTRO
     nombre: { type: String, required: true },
     apellidos: { type: String, required: true },
     rut: { type: String, required: true, unique: true },
@@ -12,28 +12,23 @@ const EstudianteSchema = new Schema({
     carrera: { type: String, required: true },
     ciudad: { type: String, required: true },
 
-    // SISTEMA DE ROLES (Indispensable para la seguridad de las rutas)
+    // SISTEMA DE ROLES
     rol: { type: String, default: 'estudiante' },
 
-    // PERFIL PROFESIONAL (Información para el Generador de CV)
-    perfil: {
-        descripcionBusqueda: { type: String, default: "" }, 
-        habilidades: { type: [String], default: [] },
-        experiencia: [{
-            empresa: String,
-            cargo: String,
-            duracion: String,
-            descripcion: String
-        }],
-        proyectos: [{
-            nombre: String,
-            url: String,
-            descripcion: String
-        }]
-    },
+    // PERFIL PROFESIONAL (Campos actualizados para el Generador de CV)
+    // Los dejamos en la raíz para que coincidan con el fetch del frontend
+    resumen: { type: String, default: "" }, 
+    habilidades: { type: [String], default: [] },
+    experiencias: { type: [String], default: [] },
+    proyectos: { type: [String], default: [] },
+    
+    // Fechas de carrera para el CV
+    fechaInicio: { type: Date },
+    fechaFin: { type: Date },
 
     // METADATOS
     fechaRegistro: { type: Date, default: Date.now }
-});
+}, { timestamps: true }); // Agrega createdAt y updatedAt automáticamente
 
+// Exportamos el modelo único
 export default model('Estudiante', EstudianteSchema);

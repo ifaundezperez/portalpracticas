@@ -1,15 +1,14 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "rootDir": "./src",            // Esto sacará el código de /src
-    "outDir": "./dist",           // Y lo pondrá ordenado en /dist
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
+    "module": "NodeNext",        /* 👈 Esto es clave para que entienda el .js */
+    "moduleResolution": "NodeNext", /* 👈 Esto también */
+    "allowImportingTsExtensions": false,
+    "rewriteRelativeImportExtensions": false,
     "strict": true,
+    "esModuleInterop": true,
     "skipLibCheck": true,
-    "verbatimModuleSyntax": false  // ¡Aquí estaba el error! Lo desactivamos.
+    "forceConsistentCasingInFileNames": true
   },
   "include": ["src/*/"],
   "exclude": ["node_modules"]
