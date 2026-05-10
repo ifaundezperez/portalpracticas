@@ -155,4 +155,5 @@ function HomeCompany() {
   );
 }
 
+export default HomeCompany;
 // ... (los estilos se mantienen igual)
