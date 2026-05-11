@@ -5,9 +5,11 @@ import { API_URL } from '../config';
 function HomeCompany() {
   const navigate = useNavigate();
   const [nombreEmpresa, setNombreEmpresa] = useState('');
-  const [vista, setVista] = useState<'dashboard' | 'crear' | 'ofertas'>('dashboard');
+  const [vista, setVista] = useState<'dashboard' | 'crear' | 'ofertas' | 'postulantes'>('dashboard');
   const [ofertas, setOfertas] = useState<any[]>([]);
   const [cargando, setCargando] = useState(false);
+  const [postulantesOferta, setPostulantesOferta] = useState<any[]>([]);
+  const [ofertaSeleccionada, setOfertaSeleccionada] = useState<string | null>(null);
 
   // 🔒 VALIDACIÓN DE SEGURIDAD: Si no hay token, redirecciona al login
   useEffect(() => {
@@ -93,6 +95,42 @@ function HomeCompany() {
     }
   };
 
+  const fetchPostulantes = async (offerId: string) => {
+    setCargando(true);
+    try {
+      const response = await fetch(`${API_URL}/api/applications/oferta/${offerId}`);
+      const data = await response.json();
+      setPostulantesOferta(Array.isArray(data) ? data : []);
+      setOfertaSeleccionada(offerId);
+      setVista('postulantes');
+    } catch (error) {
+      console.error("Error al cargar postulantes:", error);
+      setPostulantesOferta([]);
+    } finally {
+      setCargando(false);
+    }
+  };
+
+  const handleCambiarEstado = async (applicationId: string, nuevoEstado: 'aceptada' | 'rechazada') => {
+    try {
+      const response = await fetch(`${API_URL}/api/applications/${applicationId}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nuevoEstado })
+      });
+
+      if (response.ok) {
+        alert(`✅ Postulante ${nuevoEstado === 'aceptada' ? 'aceptado' : 'rechazado'}`);
+        if (ofertaSeleccionada) {
+          fetchPostulantes(ofertaSeleccionada);
+        }
+      }
+    } catch (error) {
+      alert('Error al actualizar estado');
+      console.error(error);
+    }
+  };
+
   return (
     <div style={styles.container}>
       <nav style={styles.sidebar}>
@@ -114,7 +152,7 @@ function HomeCompany() {
         {vista === 'dashboard' && (
           <div style={styles.grid}>
             <div style={styles.card}><h3>{ofertas.length}</h3><p>Ofertas Activas</p></div>
-            <div style={styles.card}><h3>0</h3><p>Postulantes Totales</p></div>
+            <div style={styles.card}><h3>{ofertas.reduce((total, oferta) => total + (oferta.applicants?.length || 0), 0)}</h3><p>Postulantes Totales</p></div>
             <div style={styles.card}><h3>Activo</h3><p>Estado de Cuenta</p></div>
           </div>
         )}
@@ -156,10 +194,14 @@ function HomeCompany() {
                   {ofertas.map((o) => (
                     <tr key={o._id}>
                       {/* 🚀 CAMBIO: Usamos los campos en inglés según el nuevo modelo */}
-                      <td style={styles.td}>{o.title}</td>
+                      <td style={{...styles.td, color: '#3b82f6', cursor: 'pointer', textDecoration: 'underline'}} onClick={() => fetchPostulantes(o._id)}>
+                        {o.title}
+                      </td>
                       <td style={styles.td}>{o.modality}</td>
                       <td style={styles.td}>{o.location}</td>
-                      <td style={styles.td}>{o.applicants?.length || 0}</td>
+                      <td style={{...styles.td, cursor: 'pointer', color: '#3b82f6', fontWeight: 'bold'}} onClick={() => fetchPostulantes(o._id)}>
+                        {o.applicants?.length || 0}
+                      </td>
                       <td style={styles.td}>
                         <span style={{color: o.status === 'Active' ? '#198754' : '#ef4444', fontWeight: 'bold'}}>
                           {o.status === 'Active' ? 'Activa' : 'Cerrada'}
@@ -172,6 +214,66 @@ function HomeCompany() {
               </table>
             )}
           </div>
+        )}
+
+        {/* VISTA: POSTULANTES DE UNA OFERTA */}
+        {vista === 'postulantes' && ofertaSeleccionada && (
+          <section style={styles.card}>
+            <button onClick={() => { setOfertaSeleccionada(null); setVista('ofertas'); }} style={{marginBottom: '20px', padding: '10px 15px', backgroundColor: '#94a3b8', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer'}}>
+              ← Volver a Ofertas
+            </button>
+            <h2>Postulantes</h2>
+            {cargando ? <p>Cargando...</p> : (
+              <table style={styles.table}>
+                <thead>
+                  <tr>
+                    <th style={styles.th}>Nombre</th>
+                    <th style={styles.th}>Email</th>
+                    <th style={styles.th}>Carrera</th>
+                    <th style={styles.th}>Universidad</th>
+                    <th style={styles.th}>Estado</th>
+                    <th style={styles.th}>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {postulantesOferta.map((p) => (
+                    <tr key={p._id}>
+                      <td style={styles.td}>{p.studentId?.nombre} {p.studentId?.apellidos}</td>
+                      <td style={styles.td}>{p.studentId?.email}</td>
+                      <td style={styles.td}>{p.studentId?.carrera}</td>
+                      <td style={styles.td}>{p.studentId?.universidad}</td>
+                      <td style={styles.td}>
+                        <span style={{color: p.status === 'aceptada' ? '#198754' : p.status === 'rechazada' ? '#dc3545' : '#f59e0b', fontWeight: 'bold'}}>
+                          {p.status === 'pendiente' ? 'Pendiente' : p.status === 'aceptada' ? 'Aceptado' : 'Rechazado'}
+                        </span>
+                      </td>
+                      <td style={styles.td}>
+                        <button
+                          onClick={() => window.open(`/curriculum/${p.studentId._id}`, '_blank')}
+                          style={{backgroundColor: '#0ea5e9', color: 'white', padding: '6px 12px', border: 'none', borderRadius: '4px', cursor: 'pointer', marginRight: '5px', fontSize: '0.85rem'}}
+                        >
+                          📄 Ver CV
+                        </button>
+                        {p.status === 'pendiente' && (
+                          <>
+                            <button onClick={() => handleCambiarEstado(p._id, 'aceptada')} style={{backgroundColor: '#198754', color: 'white', padding: '6px 12px', border: 'none', borderRadius: '4px', cursor: 'pointer', marginRight: '5px', fontSize: '0.85rem'}}>
+                              ✓ Aceptar
+                            </button>
+                            <button onClick={() => handleCambiarEstado(p._id, 'rechazada')} style={{backgroundColor: '#dc3545', color: 'white', padding: '6px 12px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem'}}>
+                              ✕ Rechazar
+                            </button>
+                          </>
+                        )}
+                        {p.status === 'aceptada' && <span style={{color: '#198754', fontWeight: 'bold'}}>✓ Aceptado</span>}
+                        {p.status === 'rechazada' && <span style={{color: '#dc3545', fontWeight: 'bold'}}>✕ Rechazado</span>}
+                      </td>
+                    </tr>
+                  ))}
+                  {postulantesOferta.length === 0 && <tr><td colSpan={6} style={{textAlign: 'center', padding: '20px'}}>No hay postulantes.</td></tr>}
+                </tbody>
+              </table>
+            )}
+          </section>
         )}
       </main>
     </div>

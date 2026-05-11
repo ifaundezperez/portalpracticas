@@ -18,7 +18,7 @@ const applicationSchema = new Schema<IApplication>({
   // 🚀 CAMBIO: De 'estudiante' a 'studentId'
   studentId: {
     type: Schema.Types.ObjectId,
-    ref: 'Student', // Asegúrate de que coincida con el nombre del modelo de estudiantes
+    ref: 'Estudiante', // Coincide con el modelo Student.ts que se registra como 'Estudiante'
     required: [true, 'El ID del estudiante es obligatorio']
   },
   status: {

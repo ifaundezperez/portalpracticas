@@ -12,6 +12,14 @@ function HomeStudent() {
   const [postulaciones, setPostulaciones] = useState<any[]>([]);
   const [cargando, setCargando] = useState(false);
 
+  // Estado para editar perfil profesional
+  const [perfilEditable, setPerfilEditable] = useState({
+    resumen: '',
+    habilidades: [] as string[],
+    experiencias: [] as string[],
+    proyectos: [] as string[]
+  });
+
   // 🔒 VALIDACIÓN DE SEGURIDAD: Si no hay token, redirecciona al login
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -83,6 +91,39 @@ function HomeStudent() {
       }
     } catch (error) {
       alert('Error de conexión con el servidor');
+    }
+  };
+
+  const handleGuardarPerfil = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const studentId = localStorage.getItem('userId');
+
+    // Convertir habilidades de string a array si es necesario
+    const datosAEnviar = {
+      resumen: perfilEditable.resumen,
+      habilidades: typeof perfilEditable.habilidades === 'string'
+        ? perfilEditable.habilidades.split(',').map(h => h.trim()).filter(h => h)
+        : perfilEditable.habilidades,
+      experiencias: perfilEditable.experiencias,
+      proyectos: perfilEditable.proyectos
+    };
+
+    try {
+      const response = await fetch(`${API_URL}/api/auth/actualizar-perfil/${studentId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(datosAEnviar)
+      });
+
+      if (response.ok) {
+        alert('✅ Perfil actualizado correctamente');
+      } else {
+        const errorData = await response.json();
+        alert(`❌ Error: ${errorData.message}`);
+      }
+    } catch (error) {
+      alert('Error al guardar perfil');
+      console.error(error);
     }
   };
 
@@ -167,7 +208,7 @@ function HomeStudent() {
                         color: p.status === 'accepted' ? '#198754' : p.status === 'rejected' ? '#dc3545' : '#f59e0b',
                         fontWeight: 'bold'
                       }}>
-                        {p.status === 'pending' ? 'Pendiente' : p.status === 'accepted' ? 'Aceptado' : 'Rechazado'}
+                        {p.status === 'pendiente' ? 'Pendiente' : p.status === 'aceptada' ? 'Aceptado' : 'Rechazado'}
                       </span>
                     </td>
                   </tr>
@@ -201,13 +242,54 @@ function HomeStudent() {
         {/* VISTA: MI PERFIL */}
         {vista === 'perfil' && (
           <section style={styles.card}>
-            <h2>Mi Perfil</h2>
-            <div style={{marginTop: '20px'}}>
-              <p><strong>Nombre:</strong> {nombreAlumno}</p>
-              <p><strong>Email:</strong> {localStorage.getItem('userName')}</p>
-              <p><strong>Rol:</strong> Estudiante</p>
-              <p style={{color: '#94a3b8', marginTop: '20px', fontSize: '0.9rem'}}>* Edición de perfil en desarrollo</p>
-            </div>
+            <h2>Mi Perfil Profesional</h2>
+            <form onSubmit={handleGuardarPerfil} style={{marginTop: '20px'}}>
+
+              <label style={{display: 'block', marginBottom: '15px'}}>
+                <strong>Resumen Profesional:</strong>
+                <textarea
+                  value={perfilEditable.resumen}
+                  onChange={(e) => setPerfilEditable({...perfilEditable, resumen: e.target.value})}
+                  placeholder="Cuéntanos sobre ti en máximo 200 palabras..."
+                  style={{width: '100%', padding: '10px', marginTop: '5px', borderRadius: '6px', border: '1px solid #cbd5e1', minHeight: '80px', boxSizing: 'border-box', fontFamily: 'Arial, sans-serif'}}
+                />
+              </label>
+
+              <label style={{display: 'block', marginBottom: '15px'}}>
+                <strong>Habilidades Técnicas (separadas por coma):</strong>
+                <input
+                  type="text"
+                  value={typeof perfilEditable.habilidades === 'string' ? perfilEditable.habilidades : perfilEditable.habilidades.join(', ')}
+                  onChange={(e) => setPerfilEditable({...perfilEditable, habilidades: e.target.value})}
+                  placeholder="React, Python, SQL, JavaScript..."
+                  style={{width: '100%', padding: '10px', marginTop: '5px', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box'}}
+                />
+              </label>
+
+              <label style={{display: 'block', marginBottom: '15px'}}>
+                <strong>Experiencias y Voluntariado:</strong>
+                <textarea
+                  value={perfilEditable.experiencias.join('\n')}
+                  onChange={(e) => setPerfilEditable({...perfilEditable, experiencias: e.target.value.split('\n').filter(e => e.trim())})}
+                  placeholder="Una línea por experiencia&#10;Ej: Voluntariado en ONG XYZ (2023)&#10;Ej: Práctica en Empresa ABC"
+                  style={{width: '100%', padding: '10px', marginTop: '5px', borderRadius: '6px', border: '1px solid #cbd5e1', minHeight: '80px', boxSizing: 'border-box', fontFamily: 'Arial, sans-serif'}}
+                />
+              </label>
+
+              <label style={{display: 'block', marginBottom: '15px'}}>
+                <strong>Proyectos Destacados:</strong>
+                <textarea
+                  value={perfilEditable.proyectos.join('\n')}
+                  onChange={(e) => setPerfilEditable({...perfilEditable, proyectos: e.target.value.split('\n').filter(p => p.trim())})}
+                  placeholder="Una línea por proyecto&#10;Ej: App de gestión de tareas con React&#10;Ej: Sistema de base de datos SQL"
+                  style={{width: '100%', padding: '10px', marginTop: '5px', borderRadius: '6px', border: '1px solid #cbd5e1', minHeight: '80px', boxSizing: 'border-box', fontFamily: 'Arial, sans-serif'}}
+                />
+              </label>
+
+              <button type="submit" style={{backgroundColor: '#3b82f6', color: 'white', padding: '12px 24px', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '1rem', fontWeight: 'bold'}}>
+                💾 Guardar Cambios
+              </button>
+            </form>
           </section>
         )}
       </main>
