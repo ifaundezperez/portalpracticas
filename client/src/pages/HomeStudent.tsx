@@ -1,15 +1,26 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { API_URL } from '../config';
 
 function HomeStudent() {
   const navigate = useNavigate();
   const [nombreAlumno, setNombreAlumno] = useState('');
-  const [vista, setVista] = useState<'explorar' | 'postulaciones' | 'perfil'>('explorar');
-  
+  const [vista, setVista] = useState<'explorar' | 'postulaciones' | 'perfil' | 'curriculum'>('explorar');
+
   // Estados para datos del Backend
   const [ofertas, setOfertas] = useState<any[]>([]);
   const [postulaciones, setPostulaciones] = useState<any[]>([]);
   const [cargando, setCargando] = useState(false);
+
+  // 🔒 VALIDACIÓN DE SEGURIDAD: Si no hay token, redirecciona al login
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const role = localStorage.getItem('role');
+
+    if (!token || role !== 'student') {
+      navigate('/login', { replace: true });
+    }
+  }, [navigate]);
 
   useEffect(() => {
     // Recuperamos datos de sesión
@@ -26,7 +37,7 @@ function HomeStudent() {
   const fetchOfertas = async () => {
     setCargando(true);
     try {
-      const response = await fetch('http://localhost:5000/api/offers'); // Ruta pluralizada
+      const response = await fetch(`${API_URL}/api/offers`); // Ruta pluralizada
       const data = await response.json();
       // 🛡️ Salvaguarda: Si data no es un array, ponemos uno vacío para evitar crash
       setOfertas(Array.isArray(data) ? data : []);
@@ -44,7 +55,7 @@ function HomeStudent() {
 
     setCargando(true);
     try {
-      const response = await fetch(`http://localhost:5000/api/applications/student/${studentId}`);
+      const response = await fetch(`${API_URL}/api/applications/student/${studentId}`);
       const data = await response.json();
       setPostulaciones(Array.isArray(data) ? data : []);
     } catch (error) {
@@ -57,7 +68,7 @@ function HomeStudent() {
   const handlePostular = async (offerId: string) => {
     const studentId = localStorage.getItem('userId');
     try {
-      const response = await fetch('http://localhost:5000/api/applications/postular', {
+      const response = await fetch(`${API_URL}/api/applications/postular`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ offerId, studentId }) // Campos en inglés coinciden con el modelo
@@ -88,8 +99,8 @@ function HomeStudent() {
         <div style={styles.navLinks}>
           <button onClick={() => setVista('explorar')} style={vista === 'explorar' ? styles.activeLink : styles.link}>🔍 Explorar Prácticas</button>
           <button onClick={() => setVista('postulaciones')} style={vista === 'postulaciones' ? styles.activeLink : styles.link}>📋 Mis Postulaciones</button>
-          <button style={styles.link}>📄 Mi Curriculum</button>
-          <button style={styles.link}>⚙️ Mi Perfil</button>
+          <button onClick={() => setVista('curriculum')} style={vista === 'curriculum' ? styles.activeLink : styles.link}>📄 Mi Curriculum</button>
+          <button onClick={() => setVista('perfil')} style={vista === 'perfil' ? styles.activeLink : styles.link}>⚙️ Mi Perfil</button>
         </div>
         <button onClick={handleLogout} style={styles.btnLogout}>Cerrar Sesión</button>
       </nav>
@@ -164,6 +175,39 @@ function HomeStudent() {
               </tbody>
             </table>
             {postulaciones.length === 0 && <p style={{textAlign: 'center', padding: '20px'}}>Aún no has postulado a ninguna práctica.</p>}
+          </section>
+        )}
+
+        {/* VISTA: MI CURRICULUM */}
+        {vista === 'curriculum' && (
+          <section style={styles.card}>
+            <h2>Mi Curriculum Generado</h2>
+            <p style={{color: '#64748b', marginBottom: '20px'}}>Tu CV se genera automáticamente basado en tu perfil. Puedes verlo y descargarlo como PDF.</p>
+            <a href={`/curriculum/${localStorage.getItem('userId')}`} target="_blank" rel="noopener noreferrer" style={{
+              display: 'inline-block',
+              backgroundColor: '#3b82f6',
+              color: 'white',
+              padding: '12px 24px',
+              borderRadius: '6px',
+              textDecoration: 'none',
+              cursor: 'pointer',
+              fontWeight: 'bold'
+            }}>
+              📄 Ver / Descargar CV
+            </a>
+          </section>
+        )}
+
+        {/* VISTA: MI PERFIL */}
+        {vista === 'perfil' && (
+          <section style={styles.card}>
+            <h2>Mi Perfil</h2>
+            <div style={{marginTop: '20px'}}>
+              <p><strong>Nombre:</strong> {nombreAlumno}</p>
+              <p><strong>Email:</strong> {localStorage.getItem('userName')}</p>
+              <p><strong>Rol:</strong> Estudiante</p>
+              <p style={{color: '#94a3b8', marginTop: '20px', fontSize: '0.9rem'}}>* Edición de perfil en desarrollo</p>
+            </div>
           </section>
         )}
       </main>

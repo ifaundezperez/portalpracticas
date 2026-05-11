@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import { API_URL } from '../config';
 
 function CurriculumView() {
   const { id } = useParams();
   const [estudiante, setEstudiante] = useState<any>(null);
 
   useEffect(() => {
-    fetch(`http://localhost:5000/api/auth/estudiante/${id}`)
+    fetch(`${API_URL}/api/auth/estudiante/${id}`)
       .then(res => res.json())
       .then(data => setEstudiante(data))
       .catch(err => console.error("Error:", err));
@@ -26,15 +27,19 @@ function CurriculumView() {
 
       <section style={styles.section}>
         <h3 style={styles.sectionTitle}>RESUMEN PROFESIONAL</h3>
-        <p style={styles.text}>{estudiante.resumen || "Sin resumen especificado."}</p>
+        <p style={styles.text}>{estudiante.resumen ?? "Sin resumen especificado."}</p>
       </section>
 
       <section style={styles.section}>
         <h3 style={styles.sectionTitle}>HABILIDADES TÉCNICAS</h3>
         <div style={styles.tags}>
-          {estudiante.habilidades?.map((h: string, i: number) => (
-            <span key={i} style={styles.tag}>{h}</span>
-          ))}
+          {estudiante.habilidades && estudiante.habilidades.length > 0 ? (
+            estudiante.habilidades.map((h: string, i: number) => (
+              <span key={i} style={styles.tag}>{h}</span>
+            ))
+          ) : (
+            <p style={styles.text}>No se han registrado habilidades.</p>
+          )}
         </div>
       </section>
 

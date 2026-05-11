@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { API_URL } from '../config';
 import '../styles/Register.css';
 
 function RegisterStudent() {
@@ -23,11 +24,11 @@ function RegisterStudent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault(); // 👈 1. SIEMPRE PRIMERO para evitar que la página parpadee
     
-    console.log("🚀 Enviando a:", 'http://localhost:5000/api/auth/register-student');
+    console.log("🚀 Enviando a:", `${API_URL}/api/auth/register-student`);
     console.log("📦 Datos:", formData);
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/register-student', {
+      const response = await fetch(`${API_URL}/api/auth/register-student`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { API_URL } from '../config';
 
 function HomeCompany() {
   const navigate = useNavigate();
@@ -7,6 +8,16 @@ function HomeCompany() {
   const [vista, setVista] = useState<'dashboard' | 'crear' | 'ofertas'>('dashboard');
   const [ofertas, setOfertas] = useState<any[]>([]);
   const [cargando, setCargando] = useState(false);
+
+  // 🔒 VALIDACIÓN DE SEGURIDAD: Si no hay token, redirecciona al login
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const role = localStorage.getItem('role');
+
+    if (!token || role !== 'company') {
+      navigate('/login', { replace: true });
+    }
+  }, [navigate]);
 
   // 1. Sincronizamos los nombres de los campos con el Modelo Offer.ts
   const [nuevaOferta, setNuevaOferta] = useState({
@@ -29,16 +40,28 @@ function HomeCompany() {
 
   const fetchOfertas = async () => {
     const empresaId = localStorage.getItem('userId');
-    if (!empresaId) return;
+    if (!empresaId) {
+      setOfertas([]);
+      return;
+    }
 
     setCargando(true);
     try {
-      // 🚀 CAMBIO: Ruta pluralizada en inglés para coincidir con index.ts
-      const response = await fetch(`http://localhost:5000/api/offers/empresa/${empresaId}`);
+      const response = await fetch(`${API_URL}/api/offers/empresa/${empresaId}`);
+
+      // 🛡️ Validar que la respuesta fue exitosa
+      if (!response.ok) {
+        console.error('Error en servidor:', response.status);
+        setOfertas([]);
+        return;
+      }
+
       const data = await response.json();
-      setOfertas(data);
+      // 🛡️ Salvaguarda: Si no es array, ponemos uno vacío
+      setOfertas(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Error al cargar ofertas:", error);
+      setOfertas([]);
     } finally {
       setCargando(false);
     }
@@ -50,7 +73,7 @@ function HomeCompany() {
 
     try {
       // 🚀 CAMBIO: Ruta 'api/offers/crear'
-      const response = await fetch('http://localhost:5000/api/offers/crear', {
+      const response = await fetch(`${API_URL}/api/offers/crear`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -155,5 +178,26 @@ function HomeCompany() {
   );
 }
 
+
+// ESTILOS PARA HOMECOMPANY (Igual que HomeStudent pero adaptado)
+const styles: { [key: string]: React.CSSProperties } = {
+  container: { display: 'flex', height: '100vh', backgroundColor: '#f8fafc' },
+  sidebar: { width: '260px', backgroundColor: '#1e293b', color: 'white', padding: '30px', display: 'flex', flexDirection: 'column' },
+  logo: { color: '#60a5fa', marginBottom: '40px', letterSpacing: '1px' },
+  navLinks: { display: 'flex', flexDirection: 'column', gap: '15px', flexGrow: 1 },
+  link: { background: 'none', border: 'none', color: '#94a3b8', textAlign: 'left', padding: '12px', cursor: 'pointer', fontSize: '1rem' },
+  activeLink: { backgroundColor: '#334155', border: 'none', color: '#60a5fa', textAlign: 'left', padding: '12px', cursor: 'pointer', borderRadius: '8px', fontWeight: 'bold' },
+  btnLogout: { backgroundColor: '#ef4444', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', cursor: 'pointer' },
+  main: { flexGrow: 1, padding: '40px', overflowY: 'auto' },
+  header: { marginBottom: '40px' },
+  grid: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', marginBottom: '30px' },
+  card: { backgroundColor: 'white', padding: '20px', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' },
+  form: { backgroundColor: 'white', padding: '30px', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', maxWidth: '600px' },
+  input: { width: '100%', padding: '12px', marginBottom: '15px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '1rem' },
+  btnSubmit: { backgroundColor: '#3b82f6', color: 'white', border: 'none', padding: '12px 24px', borderRadius: '6px', cursor: 'pointer', fontSize: '1rem', marginTop: '10px' },
+  table: { width: '100%', borderCollapse: 'collapse' },
+  th: { textAlign: 'left', padding: '12px', borderBottom: '2px solid #f1f5f9', color: '#64748b', fontWeight: 'bold' },
+  td: { padding: '12px', borderBottom: '1px solid #f1f5f9' }
+};
+
 export default HomeCompany;
-// ... (los estilos se mantienen igual)

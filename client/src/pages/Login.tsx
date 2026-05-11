@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { API_URL } from '../config';
 import '../styles/Login.css';
 
 function Login() {
@@ -17,7 +18,7 @@ function Login() {
   const handleStudentLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://localhost:5000/api/auth/login-student', {
+      const response = await fetch(`${API_URL}/api/auth/login-student`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: studentEmail, password: studentPass })
@@ -44,7 +45,7 @@ function Login() {
   const handleCompanyLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://localhost:5000/api/auth/login-company', {
+      const response = await fetch(`${API_URL}/api/auth/login-company`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: companyEmail, password: companyPass })
