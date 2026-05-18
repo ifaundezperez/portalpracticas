@@ -7,7 +7,7 @@ function CurriculumView() {
   const [estudiante, setEstudiante] = useState<any>(null);
 
   useEffect(() => {
-    fetch(`${API_URL}/api/auth/estudiante/${id}`)
+    fetch(`${API_URL}/api/auth/student/${id}`)
       .then(res => res.json())
       .then(data => setEstudiante(data))
       .catch(err => console.error("Error:", err));
@@ -20,21 +20,21 @@ function CurriculumView() {
       <button onClick={() => window.print()} style={styles.btnPrint}>🖨️ Imprimir / PDF</button>
 
       <header style={styles.header}>
-        <h1 style={styles.name}>{estudiante.nombre}</h1>
-        <p style={styles.subtitle}>{estudiante.carrera} | {estudiante.universidad}</p>
+        <h1 style={styles.name}>{estudiante.firstName + ' ' + estudiante.lastName}</h1>
+        <p style={styles.subtitle}>{estudiante.career} | {estudiante.university}</p>
         <p style={styles.contact}>📧 {estudiante.email}</p>
       </header>
 
       <section style={styles.section}>
         <h3 style={styles.sectionTitle}>RESUMEN PROFESIONAL</h3>
-        <p style={styles.text}>{estudiante.resumen ?? "Sin resumen especificado."}</p>
+        <p style={styles.text}>{estudiante.summary ?? "Sin resumen especificado."}</p>
       </section>
 
       <section style={styles.section}>
         <h3 style={styles.sectionTitle}>HABILIDADES TÉCNICAS</h3>
         <div style={styles.tags}>
-          {estudiante.habilidades && estudiante.habilidades.length > 0 ? (
-            estudiante.habilidades.map((h: string, i: number) => (
+          {estudiante.skills && estudiante.skills.length > 0 ? (
+            estudiante.skills.map((h: string, i: number) => (
               <span key={i} style={styles.tag}>{h}</span>
             ))
           ) : (
@@ -46,8 +46,8 @@ function CurriculumView() {
       {/* 🚀 SECCIONES DINÁMICAS QUE AGREGAMOS RECIÉN */}
       <section style={styles.section}>
         <h3 style={styles.sectionTitle}>EXPERIENCIA Y VOLUNTARIADO</h3>
-        {estudiante.experiencias?.length > 0 ? (
-          estudiante.experiencias.map((exp: string, i: number) => (
+        {estudiante.experience?.length > 0 ? (
+          estudiante.experience.map((exp: string, i: number) => (
             <p key={i} style={styles.listItem}>• {exp}</p>
           ))
         ) : <p style={styles.text}>No se han registrado experiencias.</p>}
@@ -55,8 +55,8 @@ function CurriculumView() {
 
       <section style={styles.section}>
         <h3 style={styles.sectionTitle}>PROYECTOS DESTACADOS</h3>
-        {estudiante.proyectos?.length > 0 ? (
-          estudiante.proyectos.map((proj: string, i: number) => (
+        {estudiante.projects?.length > 0 ? (
+          estudiante.projects.map((proj: string, i: number) => (
             <div key={i} style={styles.projectCard}>{proj}</div>
           ))
         ) : <p style={styles.text}>No se han registrado proyectos.</p>}

@@ -9,9 +9,9 @@ const router = Router();
 // --- REGISTRO DE ESTUDIANTE ---
 router.post('/register-student', async (req, res) => {
   try {
-    const { nombre, apellidos, rut, email, password, telefono, universidad, carrera, ciudad } = req.body;
+    const { firstName, lastName, studentRUT, email, password, phone, university, career, city } = req.body;
 
-    const existingStudent = await Student.findOne({ $or: [{ email }, { rut }] });
+    const existingStudent = await Student.findOne({ $or: [{ email }, { studentRUT }] });
     if (existingStudent) {
       return res.status(400).json({ message: 'El correo o RUT ya está registrado' });
     }
@@ -20,15 +20,15 @@ router.post('/register-student', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const newStudent = new Student({
-      nombre,
-      apellidos,
-      rut,
+      firstName,
+      lastName,
+      studentRUT,
       email,
       password: hashedPassword,
-      telefono,
-      universidad,
-      carrera,
-      ciudad
+      phone,
+      university,
+      career,
+      city
     });
 
     await newStudent.save();
@@ -42,9 +42,9 @@ router.post('/register-student', async (req, res) => {
 // --- REGISTRO DE EMPRESA ---
 router.post('/register-company', async (req, res) => {
   try {
-    const { nombreEmpresa, rutEmpresa, rubro, email, password } = req.body;
+    const { companyName, companyRUT, industry, email, password } = req.body;
 
-    const existingCompany = await Company.findOne({ $or: [{ email }, { rutEmpresa }] });
+    const existingCompany = await Company.findOne({ $or: [{ email }, { companyRUT }] });
     if (existingCompany) {
       return res.status(400).json({ message: 'El correo corporativo o RUT de empresa ya está registrado' });
     }
@@ -53,9 +53,9 @@ router.post('/register-company', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const newCompany = new Company({
-      nombreEmpresa,
-      rutEmpresa,
-      rubro,
+      companyName,
+      companyRUT,
+      industry,
       email,
       password: hashedPassword
     });
@@ -88,7 +88,7 @@ router.post('/login-student', async (req, res) => {
       { expiresIn: '4h' }
     );
 
-    res.json({ token, user: { id: student._id, nombre: student.nombre, role: 'student' } });
+    res.json({ token, user: { id: student._id, firstName: student.firstName, role: 'student' } });
   } catch (error) {
     res.status(500).json({ message: 'Error en el servidor' });
   }
@@ -114,23 +114,23 @@ router.post('/login-company', async (req, res) => {
       { expiresIn: '4h' }
     );
 
-    res.json({ token, user: { id: company._id, nombre: company.nombreEmpresa, role: 'company' } });
+    res.json({ token, user: { id: company._id, companyName: company.companyName, role: 'company' } });
   } catch (error) {
     res.status(500).json({ message: 'Error en el servidor' });
   }
 });
 
 // --- OBTENER PERFIL DE ESTUDIANTE ---
-router.get('/estudiante/:id', async (req, res) => {
+router.get('/student/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const estudiante = await Student.findById(id).select('-password'); 
+    const student = await Student.findById(id).select('-password'); 
 
-    if (!estudiante) {
+    if (!student) {
       return res.status(404).json({ message: 'Estudiante no encontrado' });
     }
 
-    res.json(estudiante);
+    res.json(student);
   } catch (error) {
     console.error("Error al buscar estudiante:", error);
     res.status(500).json({ message: 'Error interno del servidor' });
@@ -138,35 +138,89 @@ router.get('/estudiante/:id', async (req, res) => {
 });
 
 // --- ACTUALIZAR PERFIL PROFESIONAL (CV) ---
-router.put('/actualizar-perfil/:id', async (req, res) => {
+router.put('/update-profile/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    
-    // 🚀 IMPORTANTE: Se agregan 'experiencias' y 'proyectos' al desglose del body
-    const { resumen, habilidades, experiencias, proyectos, fechaInicio, fechaFin } = req.body;
 
-    // Actualizamos el documento con TODOS los campos profesionales
-    const estudianteActualizado = await Student.findByIdAndUpdate(
+    const { summary, skills, experience, projects, startDate, endDate } = req.body;
+
+    // Actualizamos el documento con todos los campos profesionales
+    const updatedStudent = await Student.findByIdAndUpdate(
       id,
-      { 
-        resumen, 
-        habilidades, 
-        experiencias, // Campo pluralizado según tu nuevo esquema Student.ts
-        proyectos,    // Campo pluralizado según tu nuevo esquema Student.ts
-        fechaInicio, 
-        fechaFin 
+      {
+        summary,
+        skills,
+        experience,
+        projects,
+        startDate,
+        endDate
       },
-      { new: true } // Devuelve el objeto ya modificado para verificar en el front
+      { new: true }
     );
 
-    if (!estudianteActualizado) {
-      return res.status(404).json({ message: "No se pudo encontrar al estudiante para actualizar" });
+    if (!updatedStudent) {
+      return res.status(404).json({ message: "Estudiante no encontrado" });
     }
 
-    res.json({ message: "Perfil actualizado exitosamente", estudianteActualizado });
+    res.json({ message: "Perfil actualizado exitosamente", updatedStudent });
   } catch (error) {
     console.error("Error al actualizar perfil:", error);
-    res.status(500).json({ message: "Error interno al procesar la actualización" });
+    res.status(500).json({ message: "Error al procesar la actualización" });
+  }
+});
+
+// --- GET: Obtener datos de una empresa específica ---
+router.get('/company/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const company = await Company.findById(id).select('-password');
+    if (!company) {
+      return res.status(404).json({ message: "Empresa no encontrada" });
+    }
+
+    res.json(company);
+  } catch (error) {
+    console.error('Error al obtener empresa:', error);
+    res.status(500).json({ message: "Error al obtener datos de la empresa" });
+  }
+});
+
+// --- ACTUALIZAR PERFIL DE EMPRESA ---
+router.put('/update-company-profile/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { companyName, companyRUT, industry, phone, website, description } = req.body;
+
+    // Validar que no haya otro RUT igual (si cambió)
+    if (companyRUT) {
+      const existingCompany = await Company.findOne({ companyRUT, _id: { $ne: id } });
+      if (existingCompany) {
+        return res.status(400).json({ message: 'El RUT ya está registrado en otra empresa' });
+      }
+    }
+
+    const updatedCompany = await Company.findByIdAndUpdate(
+      id,
+      {
+        companyName,
+        companyRUT,
+        industry,
+        phone,
+        website,
+        description
+      },
+      { new: true }
+    );
+
+    if (!updatedCompany) {
+      return res.status(404).json({ message: "Empresa no encontrada" });
+    }
+
+    res.json({ message: "Perfil de empresa actualizado exitosamente", updatedCompany });
+  } catch (error) {
+    console.error("Error al actualizar perfil de empresa:", error);
+    res.status(500).json({ message: "Error al procesar la actualización" });
   }
 });
 

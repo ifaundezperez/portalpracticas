@@ -8,9 +8,9 @@ function RegisterCompany() {
   
   // 1. El "cerebro": Estado para capturar los datos
   const [formData, setFormData] = useState({
-    nombreEmpresa: '',
-    rutEmpresa: '',
-    rubro: '',
+    companyName: '',
+    companyRUT: '',
+    industry: '',
     email: '',
     password: ''
   });
@@ -57,26 +57,26 @@ function RegisterCompany() {
         
         {/* 4. Conectamos la función al formulario */}
         <form onSubmit={handleSubmit} className="register-form">
-          <input 
-            name="nombreEmpresa" 
-            placeholder="Nombre de la Empresa" 
-            onChange={handleChange} 
-            value={formData.nombreEmpresa}
-            required 
+          <input
+            name="companyName"
+            placeholder="Nombre de la Empresa"
+            onChange={handleChange}
+            value={formData.companyName}
+            required
           />
-          <input 
-            name="rutEmpresa" 
-            placeholder="RUT Empresa" 
-            onChange={handleChange} 
-            value={formData.rutEmpresa}
-            required 
+          <input
+            name="companyRUT"
+            placeholder="RUT Empresa"
+            onChange={handleChange}
+            value={formData.companyRUT}
+            required
           />
-          <input 
-            name="rubro" 
-            placeholder="Rubro (TI, Minería, etc.)" 
-            onChange={handleChange} 
-            value={formData.rubro}
-            required 
+          <input
+            name="industry"
+            placeholder="Rubro (TI, Minería, etc.)"
+            onChange={handleChange}
+            value={formData.industry}
+            required
           />
           <input 
             name="email" 

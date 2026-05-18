@@ -1,34 +1,33 @@
 import { Schema, model } from 'mongoose';
 
-const EstudianteSchema = new Schema({
+const StudentSchema = new Schema({
     // DATOS DE REGISTRO
-    nombre: { type: String, required: true },
-    apellidos: { type: String, required: true },
-    rut: { type: String, required: true, unique: true },
+    firstName: { type: String, required: true },
+    lastName: { type: String, required: true },
+    studentRUT: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    telefono: { type: String, required: true },
-    universidad: { type: String, required: true },
-    carrera: { type: String, required: true },
-    ciudad: { type: String, required: true },
+    phone: { type: String, required: true },
+    university: { type: String, required: true },
+    career: { type: String, required: true },
+    city: { type: String, required: true },
 
     // SISTEMA DE ROLES
-    rol: { type: String, default: 'estudiante' },
+    role: { type: String, default: 'student' },
 
-    // PERFIL PROFESIONAL (Campos actualizados para el Generador de CV)
-    // Los dejamos en la raíz para que coincidan con el fetch del frontend
-    resumen: { type: String, default: "" }, 
-    habilidades: { type: [String], default: [] },
-    experiencias: { type: [String], default: [] },
-    proyectos: { type: [String], default: [] },
-    
+    // PERFIL PROFESIONAL (Campos para el generador de CV)
+    summary: { type: String, default: "" },
+    skills: { type: [String], default: [] },
+    experience: { type: [String], default: [] },
+    projects: { type: [String], default: [] },
+
     // Fechas de carrera para el CV
-    fechaInicio: { type: Date },
-    fechaFin: { type: Date },
+    startDate: { type: Date },
+    endDate: { type: Date },
 
     // METADATOS
-    fechaRegistro: { type: Date, default: Date.now }
+    registrationDate: { type: Date, default: Date.now }
 }, { timestamps: true }); // Agrega createdAt y updatedAt automáticamente
 
-// Exportamos el modelo único
-export default model('Estudiante', EstudianteSchema);
+// Exportamos el modelo
+export default model('Student', StudentSchema);

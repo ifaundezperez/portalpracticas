@@ -29,9 +29,9 @@ function Login() {
       if (response.ok) {
         localStorage.setItem('token', data.token);
         localStorage.setItem('role', 'student');
-        localStorage.setItem('userName', data.user.nombre);
-        localStorage.setItem('userId', data.user._id || data.user.id); // Guardamos el ID del estudiante
-        alert(`¡Bienvenido, ${data.user.nombre}!`);
+        localStorage.setItem('userName', data.user.firstName);
+        localStorage.setItem('userId', data.user.id); // Guardamos el ID del estudiante
+        alert(`¡Bienvenido, ${data.user.firstName}!`);
         navigate('/home-student');
       } else {
         alert(data.message);
@@ -56,11 +56,10 @@ function Login() {
       if (response.ok) {
         localStorage.setItem('token', data.token);
         localStorage.setItem('role', 'company');
-        localStorage.setItem('userName', data.user.nombre);
-        // ESTA ES LA LÍNEA CRÍTICA: Guardamos el ID para las futuras ofertas
-        localStorage.setItem('userId', data.user._id || data.user.id); 
-        
-        alert(`¡Bienvenido, ${data.user.nombre}!`);
+        localStorage.setItem('userName', data.user.companyName);
+        localStorage.setItem('userId', data.user.id);
+
+        alert(`¡Bienvenido, ${data.user.companyName}!`);
         navigate('/home-company');
       } else {
         alert(data.message);

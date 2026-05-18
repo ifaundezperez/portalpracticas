@@ -4,7 +4,7 @@ import mongoose, { Schema, Document, model } from 'mongoose';
 export interface IApplication extends Document {
   offerId: mongoose.Types.ObjectId;
   studentId: mongoose.Types.ObjectId;
-  status: 'pendiente' | 'aceptada' | 'rechazada';
+  status: 'pending' | 'accepted' | 'rejected';
   createdAt: Date;
 }
 
@@ -15,16 +15,16 @@ const applicationSchema = new Schema<IApplication>({
     ref: 'Offer', // Asegúrate de que coincida con el nombre del modelo de ofertas
     required: [true, 'El ID de la oferta es obligatorio']
   },
-  // 🚀 CAMBIO: De 'estudiante' a 'studentId'
+  // Student reference
   studentId: {
     type: Schema.Types.ObjectId,
-    ref: 'Estudiante', // Coincide con el modelo Student.ts que se registra como 'Estudiante'
+    ref: 'Student',
     required: [true, 'El ID del estudiante es obligatorio']
   },
   status: {
     type: String,
-    enum: ['pendiente', 'aceptada', 'rechazada'],
-    default: 'pendiente'
+    enum: ['pending', 'accepted', 'rejected'],
+    default: 'pending'
   },
   createdAt: {
     type: Date,

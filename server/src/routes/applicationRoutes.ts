@@ -15,7 +15,7 @@ router.get('/student/:studentId', async (req: Request, res: Response) => {
       .populate({
         path: 'offerId',
         // Dentro de la oferta, poblamos el nombre de la empresa
-        populate: { path: 'companyId', select: 'nombreEmpresa' } 
+        populate: { path: 'companyId', select: 'companyName' }
       })
       .sort({ createdAt: -1 }); 
 
@@ -47,7 +47,7 @@ router.post('/postular', async (req: Request, res: Response) => {
     const nuevaPostulacion = new Application({
       offerId,
       studentId,
-      status: 'pendiente'
+      status: 'pending'
     });
     console.log('💾 Guardando postulación:', nuevaPostulacion);
 
@@ -78,7 +78,7 @@ router.get('/oferta/:offerId', async (req: Request, res: Response) => {
     const postulantes = await Application.find({ offerId })
       .populate({
         path: 'studentId',
-        select: 'nombre apellidos email carrera universidad'
+        select: 'firstName lastName email career university'
       })
       .sort({ createdAt: -1 });
 
@@ -94,7 +94,7 @@ router.get('/oferta/:offerId', async (req: Request, res: Response) => {
 router.patch('/:id/status', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { nuevoEstado } = req.body; // Se espera 'pendiente', 'aceptada' o 'rechazada'
+    const { nuevoEstado } = req.body; // Se espera 'pending', 'accepted' o 'rejected'
 
     const postulacion = await Application.findByIdAndUpdate(
       id,

@@ -20,6 +20,9 @@ function HomeStudent() {
     proyectos: [] as string[]
   });
 
+  // Estado para ver detalles de una oferta
+  const [ofertaDetalle, setOfertaDetalle] = useState<any>(null);
+
   // 🔒 VALIDACIÓN DE SEGURIDAD: Si no hay token, redirecciona al login
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -100,16 +103,16 @@ function HomeStudent() {
 
     // Convertir habilidades de string a array si es necesario
     const datosAEnviar = {
-      resumen: perfilEditable.resumen,
-      habilidades: typeof perfilEditable.habilidades === 'string'
+      summary: perfilEditable.resumen,
+      skills: typeof perfilEditable.habilidades === 'string'
         ? perfilEditable.habilidades.split(',').map(h => h.trim()).filter(h => h)
         : perfilEditable.habilidades,
-      experiencias: perfilEditable.experiencias,
-      proyectos: perfilEditable.proyectos
+      experience: perfilEditable.experiencias,
+      projects: perfilEditable.proyectos
     };
 
     try {
-      const response = await fetch(`${API_URL}/api/auth/actualizar-perfil/${studentId}`, {
+      const response = await fetch(`${API_URL}/api/auth/update-profile/${studentId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(datosAEnviar)
@@ -160,7 +163,7 @@ function HomeStudent() {
             {cargando ? <p>Cargando ofertas...</p> : (
               <div style={styles.offersGrid}>
                 {ofertas.map((o) => (
-                  <div key={o._id} style={styles.offerCard}>
+                  <div key={o._id} style={{...styles.offerCard, cursor: 'pointer', transition: 'all 0.3s'}} onClick={() => setOfertaDetalle(o)}>
                     <div style={{display: 'flex', justifyContent: 'space-between'}}>
                       {/* 🛡️ Usamos campos en inglés: title, modality */}
                       <h3 style={{margin: 0}}>{o.title}</h3>
@@ -168,12 +171,12 @@ function HomeStudent() {
                     </div>
                     {/* 🛡️ Populate: o.companyId trae el objeto de la empresa */}
                     <p style={{color: '#3b82f6', fontWeight: 'bold'}}>
-                      {o.companyId?.nombreEmpresa || 'Empresa'}
+                      {o.companyId?.companyName || 'Empresa'}
                     </p>
                     <p style={styles.offerDescription}>{o.description}</p>
                     <div style={styles.offerFooter}>
                       <span style={{fontSize: '0.8rem', color: '#94a3b8'}}>📍 {o.location}</span>
-                      <button onClick={() => handlePostular(o._id)} style={styles.btnAction}>Postular ahora</button>
+                      <button onClick={(e) => { e.stopPropagation(); handlePostular(o._id); }} style={styles.btnAction}>Postular ahora</button>
                     </div>
                   </div>
                 ))}
@@ -181,6 +184,73 @@ function HomeStudent() {
               </div>
             )}
           </section>
+        )}
+
+        {/* MODAL: DETALLES DE OFERTA */}
+        {ofertaDetalle && (
+          <div style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'flex-end', zIndex: 1000}}>
+            <div style={{backgroundColor: 'white', width: '100%', maxWidth: '500px', height: '100%', overflowY: 'auto', padding: '30px', boxShadow: '-4px 0 12px rgba(0,0,0,0.15)'}}>
+              <button onClick={() => setOfertaDetalle(null)} style={{position: 'absolute', top: '20px', right: '20px', background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', color: '#94a3b8'}}>✕</button>
+
+              <h2 style={{marginTop: 0, color: '#1e293b'}}>{ofertaDetalle.title}</h2>
+
+              {/* Empresa */}
+              <div style={{marginBottom: '20px', paddingBottom: '20px', borderBottom: '1px solid #e2e8f0'}}>
+                <h4 style={{color: '#64748b', marginBottom: '8px'}}>Empresa</h4>
+                <p style={{margin: '0 0 8px 0', fontSize: '1.1rem', fontWeight: '500', color: '#1e293b'}}>{ofertaDetalle.companyId?.companyName || 'Empresa'}</p>
+                {ofertaDetalle.companyId?.description && (
+                  <p style={{margin: 0, color: '#475569', fontSize: '0.9rem'}}>{ofertaDetalle.companyId.description}</p>
+                )}
+                {ofertaDetalle.companyId?.phone && (
+                  <p style={{margin: '8px 0 0 0', color: '#475569', fontSize: '0.9rem'}}>📱 {ofertaDetalle.companyId.phone}</p>
+                )}
+                {ofertaDetalle.companyId?.website && (
+                  <p style={{margin: '4px 0 0 0', color: '#3b82f6', fontSize: '0.9rem'}}>🌐 {ofertaDetalle.companyId.website}</p>
+                )}
+              </div>
+
+              {/* Detalles de la oferta */}
+              <div style={{marginBottom: '20px', paddingBottom: '20px', borderBottom: '1px solid #e2e8f0'}}>
+                <h4 style={{color: '#64748b', marginBottom: '8px'}}>Modalidad</h4>
+                <p style={{margin: 0, color: '#1e293b'}}>{ofertaDetalle.modality}</p>
+              </div>
+
+              <div style={{marginBottom: '20px', paddingBottom: '20px', borderBottom: '1px solid #e2e8f0'}}>
+                <h4 style={{color: '#64748b', marginBottom: '8px'}}>Ubicación</h4>
+                <p style={{margin: 0, color: '#1e293b'}}>📍 {ofertaDetalle.location}</p>
+              </div>
+
+              <div style={{marginBottom: '20px', paddingBottom: '20px', borderBottom: '1px solid #e2e8f0'}}>
+                <h4 style={{color: '#64748b', marginBottom: '8px'}}>Remuneración</h4>
+                <p style={{margin: 0, color: '#1e293b'}}>{ofertaDetalle.salary || 'A convenir'}</p>
+              </div>
+
+              <div style={{marginBottom: '20px', paddingBottom: '20px', borderBottom: '1px solid #e2e8f0'}}>
+                <h4 style={{color: '#64748b', marginBottom: '8px'}}>Descripción</h4>
+                <p style={{margin: 0, color: '#475569', lineHeight: '1.6'}}>{ofertaDetalle.description}</p>
+              </div>
+
+              <div style={{marginBottom: '20px'}}>
+                <h4 style={{color: '#64748b', marginBottom: '8px'}}>Requisitos</h4>
+                <div style={{display: 'flex', gap: '8px', flexWrap: 'wrap'}}>
+                  {ofertaDetalle.requirements && ofertaDetalle.requirements.length > 0 ? (
+                    ofertaDetalle.requirements.map((req: string, i: number) => (
+                      <span key={i} style={{backgroundColor: '#e0e7ff', color: '#4338ca', padding: '6px 12px', borderRadius: '20px', fontSize: '0.9rem', fontWeight: '500'}}>
+                        {req}
+                      </span>
+                    ))
+                  ) : (
+                    <p style={{color: '#94a3b8'}}>No especificados</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Botón postular */}
+              <button onClick={() => {handlePostular(ofertaDetalle._id); setOfertaDetalle(null);}} style={{width: '100%', backgroundColor: '#3b82f6', color: 'white', padding: '12px', border: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 'bold', cursor: 'pointer', marginTop: '20px'}}>
+                Postular a esta práctica
+              </button>
+            </div>
+          </div>
         )}
 
         {/* VISTA: MIS POSTULACIONES */}
@@ -198,17 +268,19 @@ function HomeStudent() {
               </thead>
               <tbody>
                 {postulaciones.map((p) => (
-                  <tr key={p._id}>
+                  <tr key={p._id} style={!p.offerId ? {backgroundColor: '#f3f4f6', opacity: 0.7} : {}}>
                     {/* Navegación profunda con ?. para evitar errores si el populate falla */}
-                    <td style={styles.td}>{p.offerId?.companyId?.nombreEmpresa || 'N/A'}</td>
-                    <td style={styles.td}>{p.offerId?.title || 'Oferta eliminada'}</td>
+                    <td style={styles.td}>{p.offerId?.companyId?.companyName || '—'}</td>
+                    <td style={{...styles.td, color: !p.offerId ? '#9ca3af' : 'inherit', fontStyle: !p.offerId ? 'italic' : 'normal'}}>
+                      {p.offerId?.title || '🔒 Oferta cerrada'}
+                    </td>
                     <td style={styles.td}>{new Date(p.createdAt).toLocaleDateString()}</td>
                     <td style={styles.td}>
                       <span style={{
-                        color: p.status === 'accepted' ? '#198754' : p.status === 'rejected' ? '#dc3545' : '#f59e0b',
+                        color: !p.offerId ? '#9ca3af' : (p.status === 'accepted' ? '#198754' : p.status === 'rejected' ? '#dc3545' : '#f59e0b'),
                         fontWeight: 'bold'
                       }}>
-                        {p.status === 'pendiente' ? 'Pendiente' : p.status === 'aceptada' ? 'Aceptado' : 'Rechazado'}
+                        {!p.offerId ? 'Cerrada' : (p.status === 'pending' ? 'Pendiente' : p.status === 'accepted' ? 'Aceptado' : 'Rechazado')}
                       </span>
                     </td>
                   </tr>

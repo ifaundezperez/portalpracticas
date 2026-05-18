@@ -6,15 +6,15 @@ import '../styles/Register.css';
 function RegisterStudent() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    nombre: '',
-    apellidos: '',
-    rut: '',
+    firstName: '',
+    lastName: '',
+    studentRUT: '',
     email: '',
     password: '',
-    telefono: '',
-    universidad: '',
-    carrera: '',
-    ciudad: ''
+    phone: '',
+    university: '',
+    career: '',
+    city: ''
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,13 +57,13 @@ function RegisterStudent() {
         <p>Crea tu perfil profesional</p>
         
         <form onSubmit={handleSubmit} className="register-form">
-          <input name="nombre" placeholder="Nombre" onChange={handleChange} required />
-          <input name="apellidos" placeholder="Apellidos" onChange={handleChange} required />
-          <input name="rut" placeholder="RUT (ej: 12345678-9)" onChange={handleChange} required />
-          <input name="telefono" placeholder="Teléfono (+569...)" onChange={handleChange} required />
-          <input name="universidad" placeholder="Universidad / Instituto" onChange={handleChange} required />
-          <input name="carrera" placeholder="Carrera" onChange={handleChange} required />
-          <input name="ciudad" placeholder="Ciudad" onChange={handleChange} required />
+          <input name="firstName" placeholder="Nombre" onChange={handleChange} required />
+          <input name="lastName" placeholder="Apellidos" onChange={handleChange} required />
+          <input name="studentRUT" placeholder="RUT (ej: 12345678-9)" onChange={handleChange} required />
+          <input name="phone" placeholder="Teléfono (+569...)" onChange={handleChange} required />
+          <input name="university" placeholder="Universidad / Instituto" onChange={handleChange} required />
+          <input name="career" placeholder="Carrera" onChange={handleChange} required />
+          <input name="city" placeholder="Ciudad" onChange={handleChange} required />
           <input name="email" type="email" placeholder="Correo electrónico" onChange={handleChange} required />
           <input name="password" type="password" placeholder="Contraseña" onChange={handleChange} required />
           
